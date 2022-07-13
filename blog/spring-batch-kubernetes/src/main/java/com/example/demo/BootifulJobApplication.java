@@ -51,6 +51,7 @@ public class BootifulJobApplication {
 	}
 
 	@Bean
+	@Transactional(rollbackFor = {SQLException.class}))
 	public JdbcBatchItemWriter<Person> itemWriter(DataSource dataSource) {
 		return new JdbcBatchItemWriterBuilder<Person>()
 				.dataSource(dataSource)
@@ -67,6 +68,8 @@ public class BootifulJobApplication {
 						.<Person, Person>chunk(3)
 						.reader(itemReader(resource))
 						.writer(itemWriter(dataSource))
+				                .faultTolerant()
+                                                .skipLimit(100)
 						.build())
 				.build();
 	}
